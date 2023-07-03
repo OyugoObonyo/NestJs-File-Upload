@@ -7,8 +7,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CustomUploadFileTypeValidator } from './app.validators';
 
 const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 2 * 1024 * 1024;
+const VALID_UPLOADS_MIME_TYPES = ['image/jpeg', 'image/png'];
+
 @Controller()
 export class AppController {
   @Post('upload')
@@ -16,7 +19,11 @@ export class AppController {
   public async uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'image/jpeg' })
+        .addValidator(
+          new CustomUploadFileTypeValidator({
+            fileType: VALID_UPLOADS_MIME_TYPES,
+          }),
+        )
         .addMaxSizeValidator({ maxSize: MAX_PROFILE_PICTURE_SIZE_IN_BYTES })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
